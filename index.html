@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>血氧量測數據--TKDS7429C</title>
+    
+    <!-- 引入 Google 字體 -->
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500&family=Varela+Round&display=swap" rel="stylesheet">
+
+    <style>
+        /* 背景動畫 */
+        @keyframes gradientBackground {
+            0% {
+                background: #6a11cb;
+            }
+            50% {
+                background: #2575fc;
+            }
+            100% {
+                background: #6a11cb;
+            }
+        }
+
+        /* 設定整個網頁的背景 */
+        body {
+            font-family: 'Varela Round', sans-serif;
+            margin: 0;
+            padding: 0;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: linear-gradient(45deg, #6a11cb, #2575fc);
+            background-size: 400% 400%;
+            animation: gradientBackground 10s ease infinite;
+        }
+
+        /* 主要內容區塊 */
+        .container {
+            text-align: center;
+            background-color: rgba(255, 255, 255, 0.9);
+            border-radius: 15px;
+            padding: 40px;
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+            max-width: 600px;
+            width: 100%;
+        }
+
+        /* 標題樣式 */
+        h1 {
+            font-family: 'Roboto', sans-serif;
+            font-size: 36px;
+            color: #333;
+            text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.3);
+            margin-bottom: 30px;
+            animation: fadeIn 2s ease-in-out;
+        }
+
+        /* 文字顏色和大小 */
+        p {
+            font-size: 24px;
+            color: #333;
+            margin: 20px 0;
+            transition: transform 0.3s ease-in-out;
+        }
+
+        p:hover {
+            transform: scale(1.1);
+            color: #2575fc;
+        }
+
+        /* 數據部分顯示樣式 */
+        .data {
+            font-weight: bold;
+            font-size: 30px;
+            color: #4CAF50;
+            letter-spacing: 1px;
+            animation: pulse 1.5s infinite;
+        }
+
+        /* 字體動畫 */
+        @keyframes fadeIn {
+            0% {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            100% {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes pulse {
+            0% {
+                transform: scale(1);
+                color: #4CAF50;
+            }
+            50% {
+                transform: scale(1.2);
+                color: #FF4081;
+            }
+            100% {
+                transform: scale(1);
+                color: #4CAF50;
+            }
+        }
+
+        /* 按鈕樣式 */
+        button {
+            background-color: #2575fc;
+            color: white;
+            font-size: 18px;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-top: 20px;
+            transition: background-color 0.3s ease;
+        }
+
+        button:hover {
+            background-color: #6a11cb;
+        }
+
+        /* 動畫過渡效果 */
+        .fadeInText {
+            animation: fadeIn 2s ease-in-out;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 class="fadeInText">血氧量測數據--TKDS7429C</h1>
+        <p>血氧飽和度: <span id="oxygenSaturation" class="data">加載中...</span></p>
+        <p>心率: <span id="heartRate" class="data">加載中...</span></p>
+        <button onclick="updateData()">重新刷新數據</button>
+    </div>
+
+    <script>
+        // 設定ESP32 IP地址，假設ESP32為靜態IP
+        const esp32Ip = 'http://ESP32_IP_ADDRESS';
+
+        // 更新數據的函數
+        function updateData() {
+            fetch(esp32Ip)
+                .then(response => response.text())
+                .then(html => {
+                    // 擷取網頁中的數據並更新到HTML中
+                    const oxygenMatch = html.match(/血氧飽和度: ([\d.]+)/);
+                    const heartRateMatch = html.match(/心率: (\d+)/);
+
+                    if (oxygenMatch && heartRateMatch) {
+                        document.getElementById("oxygenSaturation").textContent = oxygenMatch[1] + "%";
+                        document.getElementById("heartRate").textContent = heartRateMatch[1] + " BPM";
+                    }
+                })
+                .catch(error => {
+                    console.error('Error fetching data:', error);
+                });
+        }
+
+        // 每5秒自動更新一次數據
+        setInterval(updateData, 5000);
+    </script>
+</body>
+</html>
